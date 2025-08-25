@@ -1,0 +1,425 @@
+
+\documentclass[12pt]{article}
+\usepackage{paper}
+
+\title{A Note on DID}
+\author{Jincheng Jiang}
+\date{\today}
+\hypersetup{
+  pdftitle = {A Note on DID},
+  pdfauthor = {Jincheng Jiang},
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Intro}
+
+This is a reading note for \textit{Difference-in-difference: a
+practitioner's guide} (2025). First, let's list DID designs from simple
+to difficult:
+\begin{itemize}
+  \item basic \( 2 \times 2 \) DID design (with covariates)
+  \item many time periods, with different treat times, treatment
+    turned on and off
+  \item multiple or continuous treatments
+  \item DID with IV, dynamic effects, etc.
+\end{itemize}
+Note that the naive TWFE estimator only has solid theoretical
+foundation under the basic \( 2 \times 2 \) case. Recent methodology suggests
+that complicated DID can be justified as aggregation of many \( 2
+\times 2 \) DID blocks while requires more carefully analysis of parallel trends.
+
+The logic: identification \( \longrightarrow  \) estimation \( \longrightarrow  \) inference.
+
+\section{The literature}
+
+TBD
+
+\section{The two-by-two DID design}
+
+The roadmap:
+\begin{enumerate}
+  \item basic DID identification, estimation and inference
+  \item more topics including dynamic effects and covariates
+\end{enumerate}
+
+\subsection{Basic DID identification}
+
+We will often use the \( \omega  \)-weighted expectation operator as follows
+\[
+  \mathbb{E}_{\omega} [A \mid C]= \frac{\mathbb{E}[\omega A \mid C]}{\mathbb{E}[\omega \mid C]}
+.\]
+where \( \omega \) can be thought as the weight of an observed unit.
+We work under the potential outcome
+framework, i.e., the realized outcome is the result of a 0--1 treatment
+\[
+  Y_{it}=(1-D_{i})Y_{it}(0) + D_{i} Y_{it}(1)
+.\]
+The average treatment effect on the treated (ATT) is defined as the average difference of two
+potential outcomes of the treated group, namely
+\begin{align*}
+  \text{ATT}(t) &= \mathbb{E}_{\omega}[Y_{it}(1)-Y_{it}(0) \mid D_i=1] \\
+  &= \mathbb{E}_{\omega}[Y_{it} \mid D_i=1] - \mathbb{E}_{\omega}[Y_{it}(0) \mid D_{i}=1]
+  .
+\end{align*}
+where the second term in the second line is a counterfactual that we cannot identify
+without further assumptions.
+
+In a static RCT setting, the ATT can be easily identified using a randomized assumption
+\[
+  \mathbb{E}[Y_{it}(0) \mid D_i=1] = \mathbb{E}[Y_{it}(0) \mid D_i=0] = \mathbb{E}[Y_{it}
+  \mid D_i=0]
+.\]
+and we are done. But in a observational, dynamic setting, we don't want to assert such
+strong assumptions.
+For identification, we would just use
+\begin{itemize}
+  \item a no anticipation (NA) assumption: \( Y_{it}(1)=Y_{it}(0) \mid D_{i}=1,t=0 \)
+  \item a parallel trend (PT) assumption:
+    \[
+      \mathbb{E}[Y_{i,t=1}(0) \mid D_i=1] - \mathbb{E}[Y_{i,t=0}(0) \mid D_i=1] =
+      \mathbb{E}[Y_{i,t=1}(0) \mid D_i=0] - \mathbb{E}[Y_{i,t=0}(0) \mid D_i=0]
+    .\]
+\end{itemize}
+The NA assumption says that, the treated units' time 0 outcome won't be affected by the
+future treatment.
+This assumption is auxiliary in that if violated, say, treated units are treated at time 0, then
+we can just move the treated time one period before, and use earlier period's data as time 0.
+Note that if in the data we can't observe untreated periods for treated units, then we
+can't use the PT assumption because we can't find a ``trend'' for treated units.
+
+The PT assumption says that, the average change of potential outcome of both groups
+before and after the treat time
+should be the same if no treat happens. This assumption is less strict than a full
+randomized assumption,
+in that it allows initial difference, only requires a same changing trend, which is more
+likely to hold.
+
+With these two assumptions, the ATT can be identified using data in hand:
+\begin{align}
+  \text{ATT} &= \mathbb{E}_{\omega}[Y_{it} \mid D_i=1] - \mathbb{E}_{\omega}[Y_{it}(0)
+  \mid D_{i}=1] \nonumber \\
+  &= \mathbb{E}_{\omega }[Y_{i,t=1} \mid D_{i}=1] \nonumber \\
+  &- \left(\mathbb{E}_{\omega }[Y_{i,t=0}(0)
+    \mid D_{i}=1] + \mathbb{E}[Y_{i,t=1}(0) \mid D_i=0] - \mathbb{E}[Y_{i,t=0}(0) \mid
+  D_i=0] \right)\label{eq:att_did} \\
+  &= \underbrace{\left(\mathbb{E}_{\omega }[Y_{i,t=1} \mid D_{i}=1] - \mathbb{E}_{\omega
+  }[Y_{i,t=0}(0)\mid D_{i}=1]\right)}_{\text{difference of treated units across time}} \nonumber \\
+  &- \underbrace{\left(\mathbb{E}[Y_{i,t=1}(0) \mid D_i=0] - \mathbb{E}[Y_{i,t=0}(0) \mid
+  D_i=0] \right)}_{\text{difference of control units across time}} \nonumber
+  .
+\end{align}
+and we yield the basic \( 2 \times 2 \) DID representation. Note that the first difference is taken
+on time periods, which can be seen as canceling off some unobserved initial difference or
+fixed effects.
+The second difference is taken across groups, which gives the treatment effect.
+
+%% TODO say more about PT
+Till now we have touched on the identification of basic DID design. But we can say more
+about parallel trends
+which makes DID different from methods based on \textit{statistical independence}. As the
+paper writes
+\begin{quote}
+  In contrast, parallel trends is just a restriction on untreated potential outcome trends. It does
+  not necessarily come from exogenous variation “outside the model.” In fact, because treatment
+  adoption is often chosen by economic actors or policymakers “inside the model,” parallel trends
+  need not hold. For this reason, DiD analyses (correctly) devote significant attention
+  to evaluating parallel trends
+\end{quote}
+Investigation of the plausibility of PT has been a central focus of recent theoretical DID papers.
+Some insights are
+\begin{itemize}
+  \item PT only holds if some restrictions on \textit{the way untreated outcomes
+    enter the treatment selection mechanism} hold as well
+  \item There is no guarantee that PT holds across different transformations on data, making
+    DID analysis depend on choices of measurement.
+\end{itemize}
+
+\subsection{Estimation and inference}
+
+Estimation means that we use a sample with randomness and statistical models to estimate a
+population parameter/distribution. Inference means that we decide how credible our estimation is.
+I am thinking about whether it is necessary to specify the sources of uncertainty during estimation.
+For example, the classic difference-in-mean (DiM) estimator and the OLS estimator?
+
+It is needed! Since we are taking expectation both in DiM and OLS (the projection model).
+
+There are more than one sources of uncertainty, which are related to different DGPs. We
+talk about two:
+sampling-based uncertainty and design-based uncertainty.
+
+The sampling based uncertainty is what we mostly learned from statistics and econometrics courses:
+The world is governed by probability distributions or stochastic processes. The data we observed
+is a random sample from the population distribution. We can finally approximate the population
+with infinitely large numbers of resampling. In this scheme, we are estimating
+interesting parameters
+and constructing standard errors based on resampling with the random sample in hand.
+Under this scheme,
+let's talk about the construction of DID estimator.
+
+Intuitively, we can just write the sample version of \autoref{eq:att_did}, that is
+\[
+  \widehat{\text{ATT}} = \left( \overline{Y}_{\omega , D=1,t=1}-\overline{Y}_{\omega
+  ,D=1,t=0} \right) - \left( \overline{Y}_{\omega , D=0,t=1}-\overline{Y}_{\omega
+  ,D=0,t=0} \right)
+.\]
+where
+\[
+  \overline{Y}_{\omega ,D=g,t=t'} = \frac{\sum_{i=1}^{n} \mathbf{1}\{D_i=g,t=t'\}
+  \omega_i Y_{i,t'} }{\sum_{i=1}^{n}\omega_i \mathbf{1}\{D_i=g,t=t'\}  }
+.\]
+is the \( \omega \)-weighted sample mean of outcome for treated units in period \( t' \).
+This is known
+as the DiM estimator or plug-in estimator.
+
+The ATT can also be estimated by running a regression and using the OLS estimator. The following
+three regressions will estimate the same ATT numerically, represented by \( \beta_{22} \)
+\begin{align}
+  Y_{it} &= \beta_0 + \beta_1 \mathbf{1}(D_i=1) + \beta_2 \mathbf{1}(t=1) + \beta_{22}
+  \mathbf{1}(D_i=1,t=1) + \epsilon_{it}\label{eq:reg_did_1} \\
+  \Delta Y_{it} &= \beta_2 + \beta_{22} \mathbf{1}(D_i=1) + \epsilon_{it} \label{eq:reg_did_2}\\
+  Y_{it} &= \beta_0 + \beta_{22} \mathbf{1}(D_i=1,t=1) + \alpha_i + \eta_t +
+  \epsilon_{it}\label{eq:reg_did_3}
+\end{align}
+Let's first show that \( \beta_{22} \) in \eqref{eq:reg_did_1} would estimate ATT. The estimated
+version of this equation is
+\[
+  Y_{it} = \hat{\beta}_0  + \hat{\beta}_1  \mathbf{1}(D_i=1) + \hat{\beta}_2
+  \mathbf{1}(t=1) + \hat{\beta}_{22}
+  \mathbf{1}(D_i=1,t=1) + \hat{e}_{it}
+.\]
+and the OLS first order condition would give
+\[
+  \sum_{i,t} X_{it}(Y_{it}-X_{it}' \hat{\beta} ) = 0 \implies \sum_{it} X_{it} \hat{e}_{it} = 0
+.\]
+since \( X_{it} \) are all 0--1 variables, we can find that
+\[
+  \sum_{i,t} \hat{e}_{it} = 0, \; \sum_{i,t} \mathbf{1}(D_i=1)\hat{e}_{it}=0, \;
+  \sum_{i,t} \mathbf{1}(t=1) \hat{e}_{it}=0, \; \sum_{i,t} \mathbf{1}(D_i=1,t=1) \hat{e}_{it} = 0
+.\]
+which further implies
+\[
+  \sum_{i,t}\mathbf{1}(D_i=1,t=0) \hat{e}_{it} = 0, \;
+  \sum_{i,t}\mathbf{1}(D_i=0,t=1) \hat{e}_{it} = 0, \;
+  \sum_{i,t}\mathbf{1}(D_i=0,t=0) \hat{e}_{it} = 0
+.\]
+now, we can evaluate the estimated regression equation
+\begin{align*}
+  \overline{Y}_{D=0,t=0} &= \hat{\beta}_0 + \frac{1}{N_{00}}\sum_{i,t}\mathbf{1}(D_i=0,t=0)
+  \hat{e}_{it} \\
+  \overline{Y}_{D=0,t=1} &= \hat{\beta}_0 + \hat{\beta}_2 +
+  \frac{1}{N_{01}}\sum_{i,t}\mathbf{1}(D_i=0,t=1) \hat{e}_{it}\\
+  \overline{Y}_{D=1,t=0} &= \hat{\beta}_0 + \hat{\beta}_1 +
+  \frac{1}{N_{10}}\sum_{i,t}\mathbf{1}(D_i=1,t=0) \hat{e}_{it}\\
+  \overline{Y}_{D=1,t=1} &= \hat{\beta}_0 + \hat{\beta}_1 + \hat{\beta}_2 + \hat{\beta}_{22} +
+  \frac{1}{N_{11}}\sum_{i,t}\mathbf{1}(D_i=1,t=1) \hat{e}_{it}
+  .
+\end{align*}
+where all the residual terms can be dropped out. Finally we yield
+\[
+  \hat{\beta}_{22} = (\overline{Y}_{D=1,t=1}-\overline{Y}_{D=1,t=0}) -
+  (\overline{Y}_{D=0,t=1}-\overline{Y}_{D=0,t=0} ) = \widehat{\text{ATT}}
+.\]
+as expected.
+
+Second,~\eqref{eq:reg_did_2} is but a simple dummy regression. Therefore, \( \beta_{22} \) would
+just give a DiM estimator, which can be shown is exactly the ATT using the same technique
+above to cancel out residuals.
+Finally, estimating~\eqref{eq:reg_did_3} using FD estimator would give the same result
+as~\eqref{eq:reg_did_2}.
+
+Since regression would give a same estimation result as by-hand DID does, the inference
+procedure will be extremely simple.
+Everything we know from linear regression, like asymptotic analysis and clustered
+standard errors can be used here.
+So I'll just skip this part.
+
+\subsection{DID with covariates}
+
+In practices people control covariates that may affect PT in DID analysis, i.e.,
+they check for covariate balances, control for covariates in TWFE regression,
+and look at the so-called ``conditional parallel trends'' (CPT). The problem is that with
+covariates included,
+the TWFE estimator will differ from the by-hand DID (which would even be infeasible with
+continuous covariates). Let's start our investigation from the CPT assumption.
+
+The CPT assumption can be written as (in a conditional randomized fashion)
+\begin{equation}
+  \mathbb{E}[Y_{i,t=1}(0)  - Y_{i,t=0}(0) \mid X_i,D_i=1] =
+  \mathbb{E}[Y_{i,t=1}(0) - Y_{i,t=0}(0) \mid X_i,D_i=0]\label{eq:CPT}
+\end{equation}
+for every strata \( X_i \).~\eqref{eq:CPT} says that for each observation group defined
+by a same vector of
+covariate value, the control and treatment units should have the same outcome trend if no
+treatment happens. With the CPT assumption the ATT at period 1 can be identified as
+\begin{align}
+  \text{ATT}(1) &= \mathbb{E}_{\omega } [Y_{i,t=1}(1) \mid D_i=1] - \mathbb{E}_{\omega }
+  [Y_{i,t=1}(0) \mid D_i=1] \nonumber \\
+  &= \mathbb{E}_{\omega } [Y_{i,t=1}(1) \mid D_i=1] - \mathbb{E}_{\omega } \left[
+  \mathbb{E}_{\omega } [Y_{i,t=1}(0) \mid X_i,D_i=1] \mid D_i=1 \right]  \nonumber \\
+  &= \mathbb{E}_{\omega } [Y_{i,t=1}(1) \mid D_i=1] \nonumber \\
+  &- \mathbb{E}_{\omega }\left[\mathbb{E}_{\omega }[Y_{i,t=0}(0) \mid X_i,D_i=1] +
+  \mathbb{E}_{\omega }[\Delta Y_{i,t=1} \mid X_i,D_i=0] \mid D_i=1\right] \nonumber \\
+  &= \mathbb{E}_{\omega }[\Delta Y_{i,t=1} \mid D_{i}=1] - \mathbb{E}_{\omega }\left[
+  \mathbb{E}_{\omega }[\Delta Y_{i,t=1} \mid X_i,D_i=0] \mid D_i=1\right] \label{eq:att_cond}
+  .
+\end{align}
+where the second line is LIE, the third line is CPT, the fourth line is LIE again.
+
+Now, we consider construct an estimation for~\eqref{eq:att_cond}. The first term can be
+estimated using average change of outcome of the treated units
+\[
+  \overline{Y}_{D=1,t=1} - \overline{Y}_{D=1,t=0}
+.\]
+But the second term would be bothering: we
+should first group control units by their covariates value \( X_i \), estimating average
+change of outcome within each group, then taking expectation on the group averaged
+results using treated
+units' covariates distribution \( \mathbb{E}_{\omega }[ \cdot \mid D_i=1] \).
+Note that the inner term is a conditional expectation function (CEF) and can be estimated
+using many methods, from the
+classic outcome regression to nonparametric methods like ML. Here, as a starting point,
+we estimate the CEF using a linear model
+\[
+  \mathbb{E}_{\omega }[\Delta Y_{i,t=1} \mid X_i,D_i=0] \equiv \mu_{\omega, \Delta,
+  D=0}(X_i) = X_i' \beta_{D=0}
+.\]
+and plug the estimated quantity into the expectation to yield the sample analog
+\[
+  \frac{\sum_{i=1}^{n} \omega_i D_i \hat{\mu}_{\omega,\Delta,D=0}(X_i)}{\sum_{i=1}^{n}\omega_i D_i}
+.\]
+Finally we can estimate ATT using
+\begin{equation}
+  \widehat{\text{ATT}}(1) \coloneqq \frac{\sum_{i=1}^{n} \omega_i D_i \left( \Delta
+  Y_{i,t=1}-\hat{\mu}_{\omega,\Delta,D=0}(X_i) \right)}{\sum_{i=1}^{n}\omega_i D_i}
+\end{equation}
+this estimator is known as the regression-adjusted approach to DID\@. A direct concern is that the
+linear regression model is far too simple to fit the CEF function, thus more complicated
+methods can be used.
+
+Another well known estimator for \eqref{eq:att_cond} is the IPW-DID estimator, which
+builds on the intuition that,
+if we find some units that were likely to be observed
+in the treatment groups (based on their covariate values) but ended up in the comparison group,
+we give these untreated observations “extra” weight. Therefore, the underlying weighted
+distribution of covariates
+for comparison units are forced to match the distribution for treatment units. The
+IPW-DID estimator can be written as
+\[
+  \text{ATT}(1) \equiv \mathbb{E}[\left(w_{\omega,D=1}(D_i)-w_{\omega,
+  D=0}(D_i,X_i)\right) \Delta Y_{i,t=1}]
+.\]
+where
+\[
+  w_{\omega,D=1}(D)= \frac{\omega D}{\mathbb{E}[\omega D]}, \; w_{\omega ,D=0}(X,D) =
+  \frac{\omega (1-D) p_{\omega}(X)}{1-p_{\omega}(X)} \Big/ \mathbb{E} \left[\frac{\omega
+  (1-D) p_{\omega}(X)}{1-p_{\omega}(X)}  \right]
+.\]
+and \( p_{\omega}(X_i) = \mathbb{E}[D_i=1 \mid X_i]\) is the propensity score. It can be
+shown the oracle estimator of IPW-DID
+is unbiased for the ATT. In practice, we estimate \( p_{\omega}(X) \) using a variety of
+methods, including logistic regression.
+
+Finally, we could have a doubly robust estimator for \eqref{eq:att_cond} which is specified as
+\[
+  \text{ATT}(1) \equiv \mathbb{E} \left[\left(w_{\omega,D=1}(D_i)-w_{\omega, D=0}(D_i,X_i)\right)
+  \left( \Delta Y_{i,t=1} - \mathbb{E}[\Delta Y_{i,t=1} \mid X_i,D_i=1] \right) \right]
+.\]
+where both IPW and regression adjustment are used.
+
+Behind these modeling and estimation methods, you should find out
+that~\eqref{eq:att_cond} can be written as
+\[
+  \mathbb{E}_{\omega }\left[ \mathbb{E}_{\omega}[ \Delta Y_{i,t=1} \mid X_i, D_i=1
+  ]-\mathbb{E}_{\omega }[\Delta Y_{i,t=1} \mid X_i,D_i=0] \big| D_i=1\right]
+.\]
+which is an aggregation from CATT to ATT. In a static setting, we are familiar methods
+like matching and PSM.
+We can do the same thing for the equation above, i.e. first match, then estimate by-hand
+DID in each group,
+finally aggregate the results. The approach would be similar to RA-DID if you understand
+that regression is
+a kind of matching.
+
+To conclude, estimating \( 2\times 2 \) DID with covariates is very similar to estimating
+CATT: we start from matching, then
+PSM-DID, then IPW-DID, finally DR-DID. Where the core is precise fitting of CEF and
+propensity score function. During
+the procedure of estimating CATT we are naturally also doing \textit{heterogeneity analysis}.
+
+\textbf{What's wrong with TWFE equipped with covariates?} Short answer: when
+estimating a TWFE specification
+\[
+  Y_{i,t} = \beta_{0} + \beta_{\text{treat}} D_{i,t} + \alpha_i + \eta_t + \epsilon_{i,t}
+.\]
+the coefficient \( \beta_{\text{treat}} \) would give a weighted average of CATT
+\[
+  \mathbb{E}_{\omega}[ Y_{i,t=1}(1) - Y_{i,t=1}(0) \mid X_i, D_i=1 ]
+.\]
+where the weights are unclear and may not be convex. That is to say, the TWFE estimator
+\( \beta_{\text{treat}} \) may not recover
+the true ATT(1) and even has an inverse sign. Also, its casual implication is unclear.
+
+\section{DID with many time periods}
+
+For a dynamic DID setting with multiple time periods, we have to expand the notation:
+time \( t=1,2,\ldots ,T \),
+potential outcome remains to be
+\[
+  Y_{i,t} = D_{i,t}Y_{i,t}(1) + ( 1 - D_{i,t} )Y_{i,t}(0)
+.\]
+but treatment scheme varies
+\begin{itemize}
+  \item simple event study \( 2 \times T \): unique treatment at one time, so \( D_{i,t}=D_{i} \)
+  \item staggered adoption \( G_{\#} \times T \): units will receive treatment at
+    different time points
+  \item treatment turned on and off
+  \item multiple or continuous treatments
+\end{itemize}
+
+\subsection{The simple event study}
+
+\textbf{Dynamic ATT and estimation.} Event study means estimation of dynamic treatment
+effects. Suppose treatment happens at time \( t' = g \le T \), then we want
+to know the sequence of treatment estimationffect
+\[
+  \text{ATT}(t) \coloneqq \mathbb{E}_{\omega}[Y_{i,t}(1) - Y_{i,t}(0) \mid D_i = 1],
+  \forall g \le t \le T
+.\]
+To estimate this, we just need a PT assumption between time periods \( g-1 \) and \( t
+\), then everything will be same as
+the naive by-hand DID estimator with which we estimate for ATT(1). Now we do this \(
+T-g+1 \) times for the dynamic
+treatment effect sequence.
+
+\textbf{Use pre-trend estimates to access parallel trends}. The DID literature also
+suggests estimating the following thing
+as a falsification test
+\begin{align*}
+  \tau_{-k} &\coloneqq \mathbb{E}[Y_{i,t=g-1-k}(0)-Y_{i,t=g-1}(0) \mid D_i = 1] -
+  \mathbb{E}[Y_{i,t=g-1-k}(0)-Y_{i,t=g-1}(0) \mid D_i = 0] \\
+  &= \mathbb{E}[Y_{i,t=g-1-k}-Y_{i,t=g-1} \mid D_i = 1] -
+  \mathbb{E}[Y_{i,t=g-1-k}-Y_{i,t=g-1} \mid D_i = 0], 0 < k < g-1-k
+  .
+\end{align*}
+and agree with that if all \( \tau_{-k} \) are insignificant from 0, then PT assumption
+is plausible. But recent advancements
+focus a lot on PT and underline three points
+\begin{enumerate}
+  \item PT is not testable. Sometimes pre-trends may be uninformative, e.g. too early
+    pre-trends and selection due to time-varying unobservables
+  \item Statistical precision shapes the usefulness of pre-trend estimates, see,
+    especially, Roth (2022)
+  \item researchers can make better use of pre-trend estimates by taking a stand on the
+    size of plausible and/or problematic parallel trends violations
+\end{enumerate}
+
+\textbf{TWFE event study specification}. We can run a TWFE regression to get all the
+dynamic treatment effects
+\[
+
+.\]
+
+\end{document}

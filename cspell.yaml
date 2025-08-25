@@ -1,0 +1,31 @@
+version: "0.2"
+language: "en,en-us"
+# dictionaries:
+#   - project-specific-terms
+
+# dictionaryDefinitions:
+#   - name: project-specific-terms
+#     path: ./project-specific-terms.txt
+#     addWords: true
+
+words:
+  - covariates
+  - covariate
+  - Jiang
+  - Jincheng
+  - TWFE
+  - IPW
+
+
+ignoreWords:
+  - tempVar
+
+ignorePaths:
+  - "temp/**"
+  - "out/**"
+
+# files:
+#   - "**/*.js"
+#   - "**/*.ts"
+#   - "**/*.md"
+#   - "!src/legacy/**" # Exclude files in src/legacy
