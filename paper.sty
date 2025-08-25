@@ -13,18 +13,21 @@
 % Language
 % -------------------------------------------------------------------------
 
-\usepackage[UTF8]{ctex}         % enables Chinese characters
+% \usepackage[UTF8]{ctex}         % enables Chinese characters
 \usepackage[english]{babel}
+% \usepackage[fontenc]
+\usepackage[utf8]{inputenc}
 \usepackage{fontspec}
-% \usepackage[utf8]{inputenc}
 \usepackage{csquotes}
 
 % Font -------------------------------------------------------------------------
 \usepackage{mathtools}
+% Font setting for pdfLaTex (pure english)
+% \usepackage{lmodern}
+% Font setting for XeLatex
 % \usepackage{unicode-math}
-\usepackage{euler-math}
+\usepackage{euler-math} % euler-math will automatically load unicode-math
 \setmainfont{TeX Gyre Schola}
-% \setmathfont{TeX Gyre Schola Math}
 \setmonofont{Menlo}[Scale=0.88]
 \setsansfont{TeX Gyre Heros}
 % CJK fonts -------------------------------------------------------------------
