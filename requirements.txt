@@ -1,0 +1,7 @@
+Tex Gyre fonts
+0xProto Mono Nerd Font
+euler-math
+utopia
+fourier
+lato
+plex-mono

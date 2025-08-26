@@ -16,50 +16,43 @@
 % \usepackage[UTF8]{ctex}         % enables Chinese characters
 \usepackage[english]{babel}
 % \usepackage[fontenc]
-\usepackage[utf8]{inputenc}
-\usepackage{fontspec}
+% \usepackage[utf8]{inputenc}
+% \usepackage{fontspec}
 \usepackage{csquotes}
 
 % Font -------------------------------------------------------------------------
 \usepackage{mathtools}
 % Font setting for pdfLaTex (pure english)
-% \usepackage{lmodern}
-% Font setting for XeLatex
-% \usepackage{unicode-math}
-\usepackage{euler-math} % euler-math will automatically load unicode-math
-\setmainfont{TeX Gyre Schola}
-\setmonofont{Menlo}[Scale=0.88]
-\setsansfont{TeX Gyre Heros}
 % CJK fonts -------------------------------------------------------------------
 % \setCJKmainfont{SourceHanSerifSC}
 % \setCJKsansfont{SourceHanSansSC}
 % \setCJKmonofont{LXGWWenKai}
 
-% \usepackage{iftex} % Detects the TeX engine
-% \iftutex % lualatex/xelatex setup
-%     \usepackage{ctex}
-%   \usepackage{fontspec}
-%   \setmainfont{STIX Two Text}
-%     \setmathfont{STIX Two Math}
-%   \setmonofont{IBM Plex Mono}[Scale=0.88]
-% \else % pdflatex setup
-%   % T1 removes errors for things like \textbackslash
-%   \usepackage[T1]{fontenc}
-%   \usepackage[utf8]{inputenc}
-%   % Serif option (this is better for people with reading difficulties)
-%   % Libertine for serif text font
-%   \usepackage{libertine}
-%   % Source Code Pro for monospace font
-%   \usepackage[scale=0.88]{plex-mono}
-%   \renewcommand{\ttdefault}{\plexmonofamily}
+\usepackage{iftex} % Detects the TeX engine
+\iftutex % lualatex/xelatex setup
+\usepackage[UTF8]{ctex}
+\usepackage{fontspec}
+% \usepackage{unicode-math}
+\usepackage{euler-math}
+\setmainfont{Tex Gyre Schola}
+\setmonofont{0xProto Mono Nerd Font}[Scale=0.88]
+\setsansfont{Tex Gyre Heros}
+\else % pdflatex setup
+% T1 removes errors for things like \textbackslash
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{fourier}
+% Serif option (this is better for people with reading difficulties)
+% Libertine for serif text font
+% Source Code Pro for monospace font
+\usepackage[scale=0.88]{plex-mono}
 
 %   % % Sans-serif option:
 %   % % Lato for sans-serif text font
-%   % \usepackage[default]{lato}
+\usepackage[default]{lato}
 %   % % Source Code Pro for monospace font
-%   % \usepackage[scale=0.95]{plex-mono}
-%   % \renewcommand{\ttdefault}{\plexmonofamily}
-% \fi
+\fi
 
 % Small adjustments to text kerning
 \usepackage{microtype}
@@ -465,55 +458,55 @@ October\or November\or December\fi\ \number \year}
 }
 
 % color box stuff ------------------------------------------------------------
-\usepackage[most]{tcolorbox}
-\tcbuselibrary{theorems}
-
-\tcolorboxenvironment{theorem}{
-  enhanced, breakable, colback=red!5, colframe=red!70!black, boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{lemma}{
-  enhanced, breakable, colback=purple!5, colframe=purple!60!black,
-  boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{corollary}{
-  enhanced, breakable, colback=magenta!5, colframe=magenta!60!black,
-  boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{definition}{
-  enhanced, breakable, colback=gray!10, colframe=black!60, boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{example}{
-  enhanced, breakable, colback=green!5, colframe=green!60!black, boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{remark}{
-  enhanced, breakable, colback=orange!5, colframe=orange!60!black,
-  boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-
-\tcolorboxenvironment{question}{
-  enhanced, breakable, colback=blue!5, colframe=blue!80!black, boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
-\tcolorboxenvironment{assumption}{
-  enhanced, breakable, colback=navy!5, colframe=navy!80!black, boxrule=0.8pt,
-  arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
-  skip=10pt, after skip=10pt
-}
+% \usepackage[most]{tcolorbox}
+% \tcbuselibrary{theorems}
+%
+% \tcolorboxenvironment{theorem}{
+%   enhanced, breakable, colback=red!5, colframe=red!70!black, boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{lemma}{
+%   enhanced, breakable, colback=purple!5, colframe=purple!60!black,
+%   boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{corollary}{
+%   enhanced, breakable, colback=magenta!5, colframe=magenta!60!black,
+%   boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{definition}{
+%   enhanced, breakable, colback=gray!10, colframe=black!60, boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{example}{
+%   enhanced, breakable, colback=green!5, colframe=green!60!black, boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{remark}{
+%   enhanced, breakable, colback=orange!5, colframe=orange!60!black,
+%   boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+%
+% \tcolorboxenvironment{question}{
+%   enhanced, breakable, colback=blue!5, colframe=blue!80!black, boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }
+% \tcolorboxenvironment{assumption}{
+%   enhanced, breakable, colback=navy!5, colframe=navy!80!black, boxrule=0.8pt,
+%   arc=4pt, left=6pt, right=6pt, top=6pt, bottom=6pt, before
+%   skip=10pt, after skip=10pt
+% }

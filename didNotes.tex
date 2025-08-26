@@ -392,7 +392,8 @@ To estimate this, we just need a PT assumption between time periods \( g-1 \) an
 \), then everything will be same as
 the naive by-hand DID estimator with which we estimate for ATT(1). Now we do this \(
 T-g+1 \) times for the dynamic
-treatment effect sequence.
+treatment effect sequence. People can inspect the PT assumption by check covariate balancing
+or access pre-trends.
 
 \textbf{Use pre-trend estimates to access parallel trends}. The DID literature also
 suggests estimating the following thing
@@ -418,5 +419,187 @@ focus a lot on PT and underline three points
 
 \textbf{TWFE event study specification}. We can run a TWFE regression to get all the
 dynamic treatment effects
+\[
+  Y_{i,t} = \sum_{k=1}^{g-2} \beta_k \left[ \mathbf{1}(G_i=g) \mathbf{1}(t=k) \right] +
+  \sum_{s=g}^{T} \beta_s  \left[ \mathbf{1}(G_i=g) \mathbf{1}(t=s) \right] + \alpha_i +
+  \eta_t + \epsilon_{i,t}
+.\]
+where \( \beta_k \) are just \( \tau_{-k} \) and \( \beta_s \) are just ATT(s). The proof
+would be easy if you
+do the same canceling-residuals operation as \( 2 \times 2 \) DID between each period and
+the base period \( g-1 \).
+But things will be more complicated when talking about inference, since in the TWFE
+regression, we want to see
+the significance of the whole ATT sequence, thus we are doing a multiple hypothesis test
+and compute related p-values.
+The procedure can be found in several papers, including CS(2021)'s multiple bootstrap procedure.
+
+\textbf{Aggregation}. Intuitively, we can compute an average ATT using estimated parameters
+\[
+  \widehat{ \text{ATT} }_{\text{ avg }} \coloneqq \frac{1}{T-g+1} \sum_{t=g}^{T}
+  \widehat{ \text{ATT} }(t)
+.\]
+where \( \text{ATT}(t) \) can be estimated by-hand or using TWFE. However, some
+literature suggests  running
+\[
+  Y_{i,t} = \beta^{\text{OLS}} D_{i,t} + \alpha_i + \eta_t + \epsilon_{i,t}
+.\]
+where \( D_{i,t}=\mathbb{1}(D_{i}=1) \mathbb{1}(t \ge g) \) and use \( \beta^{\text{OLS}}
+\) as the average treatment effect.
+But, in fact, we must note that
+\[
+  \hat{\beta}^{\text{OLS}} = \widehat{\text{ATT}}_{\text{avg}} - \frac{1}{g}
+  \sum_{k=1}^{g} \tau_{-k}
+.\]
+
+\textbf{Event study with covariates}. Incorporate covariates into simple event study is
+nothing different from the case in
+\( 2 \times 2 \) DID. Still, we leverage a CPT assumption for each post-treatment period
+with respect to period \( g-1 \),
+then construct the estimator \( \widehat{\text{ATT}}(t) \) for these periods. In fact,
+we're doing what we have done
+in \( 2 \times 2 \) DID \( T-g+1 \) times here. All three kind of estimators: RA, IPW and
+DR can be used.
+
+\subsection{Staggered adoption}
+
+We need to further modify the PO framework to satisfy the staggered treatment adoption
+scheme. Generallt speaking, there are
+many different \( 2 \times 2 \) treat-control comparisons. Let's assume each unit will be
+treated at most once and no
+treatment turned-off. We index potential outcome by the date treatment begins, \( g:
+Y_{i,t}(g) \); for never treated units,
+we have \( Y_{i,t}=Y_{i,t}(\infty) \). The PO can thus be mapped to the data
+\[
+  Y_{i,t} = \sum_{g \in \mathcal{G}} Y_{i,t}(g) \mathbf{1}(G_{i}=g)
+.\]
+where we use \( \mathcal{G} \) to denote the set of all treatment time. For example,
+let's assume a four-period, two-treatment
+and three-units data where treatments happen at period two and three, then the data structure is
+\begin{align*}
+  Y_{1,1}(\infty),Y_{1,2}(\infty),Y_{1,3}(\infty),Y_{1,4}(\infty) \\
+  Y_{2,1}(2), Y_{2,2}(2), Y_{2,3}(2), Y_{2,4}(2) \\
+  Y_{3,1}(3), Y_{3,2}(3), Y_{3,3}(3), Y_{3,4}(3)
+\end{align*}
+
+Same as before, we need a no-anticipation assumption to exactly define treatment dates
+and maintain PT assumption.
+Here it can be written as
+\[
+  Y_{i,t}(g) = Y_{i,t}(\infty)
+.\]
+for all eventually treated units \( i \) and specific pre-treatment periods \( t < g \).
+
+\textbf{Identification}. Now we talk about the identification of ATT at time \( t \)
+under the staggered adoption scheme. In
+staggered DID designs, each treatment group (or cohort, defined by treatment time) has
+its own sequance of treatment effect parameters.
+We call them group-time average treatment effects
+\[
+  \text{ATT}(g,t) \coloneqq \mathbb{E}_{\omega}[Y_{i,t}(g)-Y_{i,t}(\infty) \mid G_i = g]
+.\]
+In this representation there should be \( t \ge g \). If \( t < g \) then it's pre-treat
+parameter which may be used to
+access PT. It is well noted that \( Y_{i,t}(\infty) \mid G_i=g \) is a counterfactual
+thus cannot be attained from data.
+This is where PT assumption comes for help.
+
+In staggered DID design, we need to choose which units as control group. Generally we
+have two choices: never-treated units
+and not-yet-treated units. The PT assumption we make would be based on the control units we choose
+\begin{assumption}[PT based on never-treated units, NEV]\label{thm:pt-nev}
+  For every eventually treated group \( g \) and post-treatment periods \( t \ge g \)
+  \[
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=g] =
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=\infty]
+  .\]
+\end{assumption}
+
+\begin{assumption}[PT based on not-yet-treated units, NYT]\label{thm:pt-not-yet}
+  For every eventually treated group \( g \), not-yet-treated group \( g' \) and
+  post-treatment periods \( t: g \le t < g' \)
+  \[
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=g] =
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=g']
+  .\]
+\end{assumption}
+
+Some literature also use a more strict PT assumption, which states that PT holds in all
+periods and all groups, to construct
+more precise estimators
+\begin{assumption}[PT for every period and group, ALL]\label{thm:pt-all}
+  For every treatment groups \( g,g' \) and period \( t \), there is
+  \[
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=g] =
+    \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,t-1}(\infty) \mid G_i=g']
+  .\]
+\end{assumption}
+
+Using \autoref{thm:pt-nev} we can quickly show that
+\[
+  \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,g-1}(\infty) \mid G_i=g] =
+  \mathbb{E}_{\omega}[Y_{i,t}(\infty)-Y_{i,g-1}(\infty) \mid G_i=\infty]
+.\]
+and plug it into \( \text{ATT}(g,t) \) yields
+\[
+  \text{ATT}(g,t) = \mathbb{E}_{\omega}[Y_{i,t}-Y_{i,g-1} \mid G_i=g] -
+  \mathbb{E}_{\omega}[Y_{i,t}-Y_{i,g-1} \mid G_i=\infty]
+.\]
+which is identified. Using our previous example, this estimator can be constructed as
+\begin{align*}
+  \widehat{\text{ATT}}(2,2)&=[Y_{2,2}-Y_{2,1}] - [Y_{1,2}-Y_{1,1}] \\
+  \widehat{\text{ATT}}(3,3)&=[Y_{3,3}-Y_{3,1}] - [Y_{1,3}-Y_{1,1}]
+  .
+\end{align*}
+and so on.
+
+Using \autoref{thm:pt-not-yet} one can identify ATT as
+\[
+  \text{ATT}(g,t) = \mathbb{E}_{\omega}[Y_{i,t}-Y_{i,g-1} \mid G_i=g] -
+  \mathbb{E}_{\omega}[Y_{i,t}-Y_{i,g-1} \mid G_i > \max \{g,t\} ]
+.\]
+In our previous example, this estimator can be constructed as
+\begin{align*}
+  \widehat{\text{ATT}}(2,2) &= [Y_{2,2}-Y_{2,1}] - \frac{1}{2} [Y_{1,2}-Y_{1,1} +
+  Y_{3,2}-Y_{3,1}] \\
+  .
+\end{align*}
+others will be same as the never-treated estimator.
+
+I skip the estimator based on \autoref{thm:pt-all} here.
+
+%% TODO write the TWFE specification for these estimators.
+
+\textbf{Aggregation}. I list three kind of aggregation here.
+\begin{itemize}
+  \item Average effects of all treated units and times: \( \text{ATT}_{\text{agg}}
+    \coloneqq \sum_{g,t} w_{\omega, g,t} \text{ATT}(g,t) \)
+  \item Average effects of event happens \( e \) periods later: \(
+      \text{ATT}_{\text{es}}(e) \coloneqq \sum_{g < \infty} w^{\text{es}}_{\omega, g, e}
+    \text{ATT}(g,g+e)  \)
+  \item Average effects of a specific cohort: \( \text{ATT}_{\text{es}}(g) \coloneqq
+    \sum_{0 \le e \le T-g} w^{\text{es}}_{\omega, g, e} \text{ATT}(g,g+e)  \)
+\end{itemize}
+
+\textbf{Incorporate covariates}. Almost same as before, use the strategies (RA, IPW, DR)
+for each comparison group \( g,t \).
+
+\textbf{what's wrong with simple TWFE under staggered DID designs}. TL;DR: TWFE
+implicitly uses already-treated comparison groups. The only
+way TWFE avoids the problem is if treatment effects do not change over time, a strong additional
+assumption.
+
+\section{Questions and extensions}
+
+Things to dig deeper
+
+\begin{enumerate}
+  \item properties of RA, IPW and DR estimators (unbiasedness, consistent)
+  \item inference, how to compute standard errors and do asymptotic inference for the estimators
+  \item prove the equivalence of regressions and by-hand DID estimators
+  \item how to check PT under staggered DID with covariates
+  \item multiple/continuous/turned-on-and-off treatments
+  \item DID with IV
+\end{enumerate}
 
 \end{document}
